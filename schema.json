@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sweepa Configuration Schema",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "ignoreIssues": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "ignoreDependencies": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "ignoreUnresolved": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "workspaces": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#"
+      }
+    }
+  }
+}
+

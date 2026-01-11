@@ -1,0 +1,1 @@
+{"version":3,"file":"UnusedImports.d.ts","sourceRoot":"","sources":["../../src/detectors/UnusedImports.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAEH,OAAO,EAAE,OAAO,EAAuD,MAAM,UAAU,CAAA;AACvF,OAAO,KAAK,EAAE,KAAK,EAAE,MAAM,YAAY,CAAA;AAEvC;;GAEG;AACH,wBAAgB,mBAAmB,CAAC,OAAO,EAAE,OAAO,GAAG,KAAK,EAAE,CAc7D"}

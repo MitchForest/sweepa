@@ -1,0 +1,1 @@
+{"version":3,"file":"UnusedEnums.d.ts","sourceRoot":"","sources":["../../src/detectors/UnusedEnums.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAEH,OAAO,EAAE,OAAO,EAA+B,MAAM,UAAU,CAAA;AAC/D,OAAO,KAAK,EAAE,KAAK,EAAc,MAAM,YAAY,CAAA;AAEnD;;GAEG;AACH,wBAAgB,qBAAqB,CAAC,OAAO,EAAE,OAAO,GAAG,KAAK,EAAE,CAc/D"}

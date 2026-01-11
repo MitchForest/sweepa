@@ -1,0 +1,42 @@
+{
+  "name": "sweepa",
+  "version": "0.1.0",
+  "description": "Call-graph-based dead code detector for TypeScript",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "sweepa": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "typescript",
+    "dead-code",
+    "unused-code",
+    "static-analysis",
+    "call-graph"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "vitest": "^2.1.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "cosmiconfig": "^9.0.0",
+    "graphology": "^0.25.4",
+    "graphology-components": "^1.5.4",
+    "graphology-traversal": "^0.3.1",
+    "graphology-types": "^0.24.7",
+    "typescript": "^5.7.0",
+    "ts-morph": "^24.0.0"
+  }
+}
