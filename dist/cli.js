@@ -2,7 +2,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { CallGraphBuilder } from './analyzer/index.js';
-import { detectUnusedParams, detectAssignOnlyProps, detectUnusedMethods, detectUnusedImports, detectUnusedEnumCases, detectRedundantExports, detectUnusedFiles, detectDependencyIssues, detectUnusedTypes, } from './detectors/index.js';
+import { detectUnusedParams, detectAssignOnlyProps, detectUnusedMethods, detectUnusedImports, detectUnusedEnumCases, detectRedundantExports, detectUnusedFiles, detectDependencyIssues, detectUnusedTypes, detectUnusedModuleExports, } from './detectors/index.js';
 import { shouldIgnoreFile, isEntryPointFile, getEntryExportsForFile, } from './frameworks/index.js';
 import { createAnalysisContext, computeReachabilityForContext, applyAllIgnores, } from './analysis/context.js';
 import { MutatorRunner, getCoreMutators, } from './mutators/index.js';
@@ -29,6 +29,8 @@ program
     .option('--fix', 'Apply safe fixes (currently: removes unused dependencies)')
     // Issue type filters
     .option('--unused-exports', 'Only check unused exports')
+    .option('--unused-exported', 'Run unused exported symbol/type checks (module-boundary)')
+    .option('--unused-exported-all', 'Run unused-exported checks for all modules (more strict/noisy)')
     .option('--unused-files', 'Only check unused files')
     .option('--dependencies', 'Only check dependencies (unused/unlisted/unresolved)')
     .option('--unused-types', 'Only check unused types')
@@ -119,13 +121,17 @@ async function runScan(options) {
             console.log(chalk.gray(`  Frameworks: ${frameworkNames}`));
         }
         // Determine which checks to run
-        const hasSpecificCheck = options.unusedExports || options.unusedParams ||
+        const hasSpecificCheck = options.unusedExports || options.unusedExported || options.unusedExportedAll || options.unusedParams ||
             options.unusedMethods || options.unusedImports ||
             options.unusedEnums || options.redundantExports ||
             options.assignOnly || options.unusedFiles ||
             options.dependencies || options.unusedTypes;
         const runAll = !hasSpecificCheck;
         const runUnusedExports = runAll || options.unusedExports;
+        const configUnusedExported = ctx.config.unusedExported ?? 'off';
+        const runUnusedExported = options.unusedExportedAll ||
+            options.unusedExported ||
+            (runAll && configUnusedExported !== 'off');
         const runUnusedFiles = runAll || options.unusedFiles;
         const runDependencies = runAll || options.dependencies;
         const runUnusedTypes = runAll || options.unusedTypes;
@@ -141,7 +147,7 @@ async function runScan(options) {
         const reachabilityForFiles = runUnusedFiles
             ? computeReachabilityForContext(ctx, { ignoreGenerated: true })
             : null;
-        const reachabilityForCode = (runDependencies || runUnusedTypes)
+        const reachabilityForCode = (runDependencies || runUnusedTypes || runUnusedExported)
             ? computeReachabilityForContext(ctx, { ignoreGenerated: false })
             : null;
         if (runUnusedFiles) {
@@ -169,6 +175,23 @@ async function runScan(options) {
                 tsConfigPath,
                 projectRoot,
                 reachableFiles: reachabilityForCode?.reachableFiles ?? undefined,
+            });
+            allIssues.push(...issues);
+        }
+        if (runUnusedExported) {
+            if (!quiet && format === 'console')
+                console.log(chalk.gray('  Checking unused exported symbols (module-boundary)...'));
+            const reachable = reachabilityForCode?.reachableFiles ?? new Set();
+            const mode = options.unusedExportedAll ? 'all' : ((ctx.config.unusedExported ?? 'barrels') === 'all' ? 'all' : 'barrels');
+            const ignoreGenerated = ctx.config.unusedExportedIgnoreGenerated ?? true;
+            const issues = detectUnusedModuleExports({
+                project,
+                tsConfigPath,
+                projectRoot,
+                reachableFiles: reachable,
+                entryPointConfig,
+                mode,
+                ignoreGenerated,
             });
             allIssues.push(...issues);
         }
@@ -493,6 +516,8 @@ function outputResults(issues, format, projectRoot, graphStats, baselineInfo, qu
 function formatKindLabel(kind) {
     const labels = {
         'unused-export': '📦 Unused Exports',
+        'unused-exported': '📦 Unused Exported Symbols',
+        'unused-exported-type': '🏷️ Unused Exported Types',
         'unused-dependency': '📦 Unused Dependencies',
         'misplaced-dependency': '📦 Misplaced Dependencies',
         'unlisted-dependency': '📦 Unlisted Dependencies',

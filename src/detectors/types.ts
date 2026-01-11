@@ -13,6 +13,8 @@ export type IssueKind =
   | 'misplaced-dependency'
   | 'unlisted-dependency'
   | 'unresolved-import'
+  | 'unused-exported'
+  | 'unused-exported-type'
   | 'unused-export'
   | 'unused-method'
   | 'unused-param'

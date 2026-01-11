@@ -14,6 +14,7 @@ export function detectDependencyIssues(options) {
     const listed = getAllListedDependencies(pkg);
     const usages = new Map();
     const unresolved = [];
+    const unresolvedSeen = new Set();
     const cssFilesToScan = new Set();
     let usesNodeBuiltins = false;
     for (const sf of options.project.getSourceFiles()) {
@@ -36,6 +37,18 @@ export function detectDependencyIssues(options) {
                     const cssPath = resolveRelativeAsset(filePath, specifier);
                     if (cssPath)
                         cssFilesToScan.add(cssPath);
+                    continue;
+                }
+                // Only check unresolved for relative imports. Absolute paths ("/x") are usually bundler/runtime concerns.
+                if (specifier.startsWith('/'))
+                    continue;
+                const resolvedInternal = resolver.resolveModule(specifier, filePath);
+                if (!resolvedInternal) {
+                    const key = `${filePath}::${specifier}`;
+                    if (!unresolvedSeen.has(key)) {
+                        unresolvedSeen.add(key);
+                        unresolved.push({ file: filePath, specifier });
+                    }
                 }
                 continue;
             }
@@ -45,7 +58,11 @@ export function detectDependencyIssues(options) {
             const resolved = resolver.resolveModule(specifier, filePath);
             // If TS can't resolve, record unresolved (unless it's a known builtin/relative).
             if (!resolved) {
-                unresolved.push({ file: filePath, specifier });
+                const key = `${filePath}::${specifier}`;
+                if (!unresolvedSeen.has(key)) {
+                    unresolvedSeen.add(key);
+                    unresolved.push({ file: filePath, specifier });
+                }
                 continue;
             }
             // Skip if it resolves to a local workspace file (not node_modules).

@@ -80,6 +80,8 @@ function normalizeConfig(cfg) {
         ignoreIssues: cfg.ignoreIssues ?? {},
         ignoreDependencies: cfg.ignoreDependencies ?? [],
         ignoreUnresolved: cfg.ignoreUnresolved ?? [],
+        unusedExported: cfg.unusedExported ?? 'off',
+        unusedExportedIgnoreGenerated: cfg.unusedExportedIgnoreGenerated ?? true,
         workspaces: cfg.workspaces ?? {},
     };
 }
@@ -88,6 +90,8 @@ function mergeConfigs(base, override) {
         ignoreDependencies: Array.from(new Set([...(base.ignoreDependencies ?? []), ...(override.ignoreDependencies ?? [])])),
         ignoreUnresolved: Array.from(new Set([...(base.ignoreUnresolved ?? []), ...(override.ignoreUnresolved ?? [])])),
         ignoreIssues: { ...(base.ignoreIssues ?? {}), ...(override.ignoreIssues ?? {}) },
+        unusedExported: (override.unusedExported ?? base.unusedExported) ?? 'off',
+        unusedExportedIgnoreGenerated: (override.unusedExportedIgnoreGenerated ?? base.unusedExportedIgnoreGenerated) ?? true,
         workspaces: base.workspaces ?? {},
     };
 }
@@ -199,6 +203,12 @@ function validateConfig(cfg) {
             if (typeof v !== 'string')
                 errors.push(`ignoreUnresolved[${i}] must be a string`);
         }
+    }
+    if (cfg.unusedExported && !['off', 'barrels', 'all'].includes(cfg.unusedExported)) {
+        errors.push('unusedExported must be one of: off, barrels, all');
+    }
+    if (cfg.unusedExportedIgnoreGenerated !== undefined && typeof cfg.unusedExportedIgnoreGenerated !== 'boolean') {
+        errors.push('unusedExportedIgnoreGenerated must be a boolean');
     }
     if (cfg.workspaces && typeof cfg.workspaces !== 'object') {
         errors.push('workspaces must be an object of workspacePath -> SweepaConfig');

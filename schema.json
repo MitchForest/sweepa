@@ -21,6 +21,13 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "unusedExported": {
+      "type": "string",
+      "enum": ["off", "barrels", "all"]
+    },
+    "unusedExportedIgnoreGenerated": {
+      "type": "boolean"
+    },
     "workspaces": {
       "type": "object",
       "additionalProperties": {

@@ -40,6 +40,7 @@ export function detectDependencyIssues(options: {
 
   const usages = new Map<string, PackageUsage>()
   const unresolved: Array<{ file: string; specifier: string }> = []
+  const unresolvedSeen = new Set<string>()
   const cssFilesToScan = new Set<string>()
   let usesNodeBuiltins = false
 
@@ -64,6 +65,19 @@ export function detectDependencyIssues(options: {
         if (looksLikeCssImport(specifier)) {
           const cssPath = resolveRelativeAsset(filePath, specifier)
           if (cssPath) cssFilesToScan.add(cssPath)
+          continue
+        }
+
+        // Only check unresolved for relative imports. Absolute paths ("/x") are usually bundler/runtime concerns.
+        if (specifier.startsWith('/')) continue
+
+        const resolvedInternal = resolver.resolveModule(specifier, filePath)
+        if (!resolvedInternal) {
+          const key = `${filePath}::${specifier}`
+          if (!unresolvedSeen.has(key)) {
+            unresolvedSeen.add(key)
+            unresolved.push({ file: filePath, specifier })
+          }
         }
         continue
       }
@@ -75,7 +89,11 @@ export function detectDependencyIssues(options: {
 
       // If TS can't resolve, record unresolved (unless it's a known builtin/relative).
       if (!resolved) {
-        unresolved.push({ file: filePath, specifier })
+        const key = `${filePath}::${specifier}`
+        if (!unresolvedSeen.has(key)) {
+          unresolvedSeen.add(key)
+          unresolved.push({ file: filePath, specifier })
+        }
         continue
       }
 

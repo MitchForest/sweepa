@@ -101,6 +101,8 @@ To bypass (not recommended in CI): `--no-config-strict`.
 - `ignoreIssues`: `{ [globPattern]: IssueKind[] }` (ignore by file pattern + issue kind)
 - `ignoreDependencies`: `string[]` (ignore dep names for dependency issue kinds)
 - `ignoreUnresolved`: `string[]` (ignore unresolved import specifiers by glob)
+- `unusedExported`: `off | barrels | all` (module-boundary unused exported checks; defaults to `off`)
+- `unusedExportedIgnoreGenerated`: `boolean` (defaults to `true`)
 - `workspaces`: `{ [workspaceDir]: SweepaConfig }` (layered overrides; most-specific wins)
 
 ### Example `.sweepa.json`
@@ -112,6 +114,7 @@ To bypass (not recommended in CI): `--no-config-strict`.
   },
   "ignoreDependencies": ["shadcn"],
   "ignoreUnresolved": ["virtual:*"],
+  "unusedExported": "barrels",
   "workspaces": {
     "apps/web": {
       "ignoreUnresolved": ["uno.css"]
@@ -131,6 +134,22 @@ sweepa scan -p apps/web/tsconfig.json --dependencies --fix
 Currently:
 - Removes **`unused-dependency`** entries from the nearest `package.json`.
 - Moves **`misplaced-dependency`** entries between `dependencies` and `devDependencies`.
+
+## Knip-style exported API checks
+
+To get Knip-style “exported but never imported elsewhere” findings, enable:
+
+```bash
+sweepa scan -p apps/web/tsconfig.json --unused-exported
+```
+
+Or configure it:
+
+```json
+{ "unusedExported": "barrels" }
+```
+
+Use `--unused-exported-all` (or config `"unusedExported": "all"`) for strict mode.
 
 ## Baseline (incremental adoption)
 

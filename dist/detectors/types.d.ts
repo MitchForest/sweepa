@@ -5,7 +5,7 @@ import type { SymbolKind } from '../graph/types.js';
 /**
  * Type of issue detected
  */
-export type IssueKind = 'unused-file' | 'unused-dependency' | 'misplaced-dependency' | 'unlisted-dependency' | 'unresolved-import' | 'unused-export' | 'unused-method' | 'unused-param' | 'unused-property' | 'unused-import' | 'unused-enum-case' | 'assign-only-property' | 'unused-variable' | 'unused-type' | 'redundant-export';
+export type IssueKind = 'unused-file' | 'unused-dependency' | 'misplaced-dependency' | 'unlisted-dependency' | 'unresolved-import' | 'unused-exported' | 'unused-exported-type' | 'unused-export' | 'unused-method' | 'unused-param' | 'unused-property' | 'unused-import' | 'unused-enum-case' | 'assign-only-property' | 'unused-variable' | 'unused-type' | 'redundant-export';
 /**
  * Confidence level for an issue
  */

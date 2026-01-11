@@ -7,6 +7,7 @@ export { detectRedundantExports } from './RedundantExports.js'
 export { detectUnusedFiles } from './UnusedFiles.js'
 export { detectDependencyIssues } from './Dependencies.js'
 export { detectUnusedTypes } from './UnusedTypes.js'
+export { detectUnusedModuleExports } from './ModuleExports.js'
 export type {
   Issue,
   IssueKind,
